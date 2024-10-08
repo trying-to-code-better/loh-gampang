@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Interface</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffe6f2; /* Light pink background */
+            color: #cc0066; /* Pink text */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            background-color: #fff0f5; /* Soft pink box */
+            border-radius: 20px;
+            border: 2px solid #ff66b2; /* Dark pink border */
+            padding: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 60%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #ff66b2;
+            font-family: 'Cursive', sans-serif;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: 20px auto;
+            border-radius: 10px;
+            padding: 10px;
+            width: 60%;
+            background-color: #ffe6f2;
+            border: 1px solid #ff66b2;
+        }
+
+        button {
+            background-color: #ff66b2;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #e60073;
+        }
+
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid #ff66b2;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* Ribbon decorations */
+        .ribbon {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background-image: url('https://www.clipartmax.com/png/small/35-351959_cartoon-red-ribbon-banner-png-banner-with-ribbon.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .ribbon-top-left {
+            top: 10px;
+            left: 10px;
+        }
+
+        .ribbon-top-right {
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ribbon ribbon-top-left"></div>
+    <div class="ribbon ribbon-top-right"></div>
+
+    <div class="container">
+        <h1>Upload CSV/Excel File</h1>
+
+        <input type="file" id="fileInput" accept=".csv, .xls, .xlsx" />
+        <button onclick="uploadFile()">Upload</button>
+
+        <div id="output"></div>
+
+        <table id="fileTable" style="display:none;">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const outputDiv = document.getElementById("output");
+            const table = document.getElementById("fileTable");
+
+            // Clear previous content
+            outputDiv.innerHTML = "";
+            table.style.display = "none";
+            table.querySelector("thead").innerHTML = "";
+            table.querySelector("tbody").innerHTML = "";
+
+            if (!file) {
+                outputDiv.innerHTML = "<p class='error'>No file selected.</p>";
+                return;
+            }
+
+            const fileName = file.name;
+            const fileExtension = fileName.split('.').pop().toLowerCase();
+
+            // Check if the file is CSV or Excel
+            if (fileExtension === 'csv') {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const csvData = event.target.result;
+                    displayCSVData(csvData);
+                };
+                reader.readAsText(file);
+            } else if (fileExtension === 'xls' || fileExtension === 'xlsx') {
+                outputDiv.innerHTML = "<p class='error'>Excel file upload feature not yet implemented.</p>";
+            } else {
+                outputDiv.innerHTML = "<p class='error'>Error: Invalid file format. Please upload a CSV or Excel file.</p>";
+            }
+        }
+
+        function displayCSVData(csvData) {
+            const rows = csvData.split("\n");
+
+            const table = document.getElementById("fileTable");
+            const thead = table.querySelector("thead");
+            const tbody = table.querySelector("tbody");
+
+            // Create table header
+            const headers = rows[0].split(",");
+            let headerRow = "<tr>";
+            headers.forEach(header => {
+                headerRow += <th>${header}</th>;
+            });
+            headerRow += "</tr>";
+            thead.innerHTML = headerRow;
+
+            // Create table body
+            rows.slice(1).forEach(row => {
+                const cells = row.split(",");
+                let rowHTML = "<tr>";
+                cells.forEach(cell => {
+                    rowHTML += <td>${cell}</td>;
+                });
+                rowHTML += "</tr>";
+                tbody.innerHTML += rowHTML;
+            });
+
+            // Show the table
+            table.style.display = "table";
+        }
+    </script>
+
+</body>
+</html>
